@@ -1,0 +1,24 @@
+regular expressions
+> '()' ~ groups a series of pattern elements to a single element
+> '|' ~ separates alternate possibilities
+    Example:
+        $string1 = "Hello World\n";
+        if ($string1 =~ m/(Hello|Hi|Pogo)/) 
+        {
+            print "$string1 contains at least one of Hello, Hi, or Pogo.";
+        }
+
+    Output:
+        Hello World
+         contains at least one of Hello,
+        Hi, or Pogo.
+> '.' ~ normally matches any character except a newline
+> '*' ~ matches the preceding pattern element zero or more times
+> '+' ~ matches the preceding pattern element one or more times
+> '\\'
+> '\d' ~ matches a digit
+> '\D' ~ matches a non-digit
+> '\s' ~ matches a whitespace character
+> '\n' ...
+> '\t' ...
+> '\S' ~ matches anything but a whitespace
