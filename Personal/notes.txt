@@ -22,3 +22,18 @@ regular expressions
 > '\n' ...
 > '\t' ...
 > '\S' ~ matches anything but a whitespace
+
+Feb 9th
+> Evaluating an operator.
+    Identify the operator. 
+        - Decide on the operands
+    Evaluate the operands
+        - Whether or nor it is unary or binary
+    Do whatever the operator wants to do. Evaluate lazy if needed. ###LAZY EVALUATION###
+        - Execute the operator
+
+> Recursion
+    Two Questions 
+        - Is there a end condition?
+        - Is the problem getting smaller?
+
