@@ -15,6 +15,9 @@ patterns = [
     (r"\-", "-"),
     (r"\/", "/"),
     (r"\*", "*"),
+    (r"\%", "%"),
+    (r"\(", "("),
+    (r"\)", ")"),
     (r".", "error")
 ]
 
@@ -40,7 +43,7 @@ def tokenize(characters):
         if current_tag == "error":
             raise Exception(f"Unexpected character: {value!r}")
         
-        if tag != "whitespace":
+        if current_tag != "whitespace":
             token = {"tag": current_tag, "line": line, "column": column}
             if current_tag == "number":
                 token["value"] = int(value)
@@ -72,34 +75,38 @@ def test_digits():
 
 def test_operators():
     print("test tokenize operators")
-    t = tokenize("+ - * /")
+    t = tokenize("+ - * / %")
     tags = [tok["tag"] for tok in t]
-    assert tags == ["+", "-", "*", "/", None]
+    assert tags == ["+", "-", "*", "/", "%", None]
 
 def test_expressions():
     print("test tokenize expressions")
-    t = tokenize("1+2*3")
+    t = tokenize("1+2*3%4")
     assert t[0]["tag"] == "number" and t[0]["value"] == 1
     assert t[1]["tag"] == "+"
     assert t[2]["tag"] == "number" and t[2]["value"] == 2
     assert t[3]["tag"] == "*"
     assert t[4]["tag"] == "number" and t[4]["value"] == 3
-    assert t[5]["tag"] == None
+    assert t[5]["tag"] == "%"
+    assert t[6]["tag"] == "number" and t[6]["value"] == 4
+    assert t[7]["tag"] == None
 
 def test_whitespace():
     print("test whitespace")
-    t = tokenize("1 +\t2    \n*     3")
+    t = tokenize("1 +\t2    \n*     3  % 4")
     assert t[0]["tag"] == "number" and t[0]["value"] == 1
     assert t[1]["tag"] == "+"
     assert t[2]["tag"] == "number" and t[2]["value"] == 2
     assert t[3]["tag"] == "*"
     assert t[4]["tag"] == "number" and t[4]["value"] == 3
-    assert t[5]["tag"] == None
+    assert t[5]["tag"] == "%"
+    assert t[6]["tag"] == "number" and t[6]["value"] == 4
+    assert t[7]["tag"] == None
 
 def test_error():
     print("test tokenize error")
     try:
-        t = tokenize("1@@@ +\t2    \n*     3")
+        tokenize("1@@@ +\t2    \n*     3")
     except Exception as e:
         assert str(e) == "Unexpected character: '@'"
         return
