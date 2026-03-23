@@ -4,12 +4,26 @@ from pprint import pprint
 patterns = [
     (r"\s+", "whitespace"),
     (r"\d+", "number"),
+    (r"==", "=="),
+    (r"!=", "!="),
+    (r"<=", "<="),
+    (r">=", ">="),
     (r"\+", "+"),
     (r"\-", "-"),
     (r"\/", "/"),
     (r"\*", "*"),
     (r"\(", "("),
     (r"\)", ")"),
+    (r"\{", "{"),
+    (r"\}", "}"),
+    (r"\=", "="),
+    (r"print\b", "print"),
+    (r"true\b", "true"),
+    (r"false\b", "false"),
+    (r"or\b", "or"),
+    (r"and\b", "and"),
+    (r"not\b", "not"),
+    (r"[a-zA-Z_][\w]*", "identifier"),
     (r".", "error"),
 ]
 
@@ -36,10 +50,12 @@ def tokenize(characters):
         if current_tag == "error":
             raise Exception(f"Unexpected character: {value!r}")
 
-        if current_tag != "whitespace":
+        if tag != "whitespace":
             token = {"tag": current_tag, "line": line, "column": column}
             if current_tag == "number":
                 token["value"] = int(value)
+            if current_tag == "identifier":
+                token["value"] = value
             tokens.append(token)
 
         # advance position and update line/column
@@ -69,9 +85,27 @@ def test_digits():
 
 def test_operators():
     print("test tokenize operators")
-    t = tokenize("+ - * / ( )")
-    tags = [token["tag"] for token in t]
-    assert tags == ["+", "-", "*", "/", "(", ")", None]
+    t = tokenize("+ - * / ( ) =")
+    tags = [tok["tag"] for tok in t]
+    assert tags == ["+", "-", "*", "/", "(", ")", "=", None]
+
+
+def test_keywords():
+    print("test tokenize keywords")
+    code = "print or and not true false"
+    tokens = tokenize(code)
+    tags = [token["tag"] for token in tokens]
+    assert tags == code.split(" ") + [None]
+
+
+
+def test_identifiers():
+    print("test tokenize identifiers")
+    t = tokenize("foo bar baz")
+    tags = [tok["tag"] for tok in t]
+    assert tags == ["identifier", "identifier", "identifier", None]
+    assert t[0]["value"] == "foo"
+    assert t[2]["value"] == "baz"
 
 
 def test_expressions():
@@ -99,17 +133,19 @@ def test_whitespace():
 def test_error():
     print("test tokenize error")
     try:
-        tokenize("1@@@ +\t2  \n*    3")
+        t = tokenize("1@@@ +\t2  \n*    3")
     except Exception as e:
         assert str(e) == "Unexpected character: '@'"
         return
-    raise Exception("Error did not happen.")
+    assert Exception("Error did not happen.")
 
 
 if __name__ == "__main__":
     test_digits()
     test_operators()
+    test_keywords()
     test_expressions()
+    test_identifiers()
     test_whitespace()
     test_error()
     print("done.")
